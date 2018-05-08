@@ -32,12 +32,13 @@
       img {
         display: block;
         z-index: 2;
+        position: relative;
       }
 
       footer {
         color: #fff;
         background: #34495e;
-        padding: 300px 0 100px;
+        padding: 300px 0 400px;
       }
 
       .top-bar {
@@ -93,7 +94,7 @@
         <div class="row column">
           <img src="http://placehold.it/250x250" class="float-left" alt="Sticky" data-sticky data-sticky-for="1023" data-sticky-class="is-sticky" data-margin-top="100">
           <div class="float-right">
-            <img src="http://placehold.it/250x250" alt="Sticky" data-sticky data-sticky-wrap data-margin-top="100">
+            <img src="http://placehold.it/250x250" alt="Sticky">
             <img src="http://placehold.it/250x125/ecf0f1?text=Not+sticky" alt="Not sticky">
           </div>
         </div>
@@ -101,7 +102,8 @@
 
       <section class="container" data-sticky-container>
         <div class="row column">
-          <img src="http://placehold.it/250x250" class="float-left" alt="Sticky" data-sticky data-margin-top="100">
+          <img src="http://placehold.it/250x250/?text=Bottom-sticky" class="float-left" alt="Sticky" data-sticky data-margin-bottom="20">
+
           <img src="http://placehold.it/250x250" class="float-right" alt="Sticky" data-sticky data-sticky-for="1023" data-margin-top="100">
         </div>
       </section>

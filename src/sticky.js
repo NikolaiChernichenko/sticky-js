@@ -30,6 +30,7 @@ class Sticky {
     this.options = {
       wrap: options.wrap || false,
       marginTop: options.marginTop || 0,
+      marginBottom: options.marginBottom || 0,
       stickyFor: options.stickyFor || 0,
       stickyClass: options.stickyClass || null,
       stickyContainer: options.stickyContainer || 'body',
@@ -81,6 +82,7 @@ class Sticky {
     element.sticky.active = false;
 
     element.sticky.marginTop = parseInt(element.getAttribute('data-margin-top')) || this.options.marginTop;
+    element.sticky.marginBottom = parseInt(element.getAttribute('data-margin-bottom')) || this.options.marginBottom;
     element.sticky.stickyFor = parseInt(element.getAttribute('data-sticky-for')) || this.options.stickyFor;
     element.sticky.stickyClass = element.getAttribute('data-sticky-class') || this.options.stickyClass;
     element.sticky.wrap = element.hasAttribute('data-sticky-wrap') ? true : this.options.wrap;
@@ -258,51 +260,107 @@ class Sticky {
       });
     }
 
-    if (
-      element.sticky.rect.top === 0
-      && element.sticky.container === this.body
-    ) {
-      this.css(element, {
-        position: 'fixed',
-        top: element.sticky.rect.top + 'px',
-        left: element.sticky.rect.left + 'px',
-        width: element.sticky.rect.width + 'px',
-      });
-    } else if (this.scrollTop > (element.sticky.rect.top - element.sticky.marginTop)) {
-      this.css(element, {
-        position: 'fixed',
-        width: element.sticky.rect.width + 'px',
-        left: element.sticky.rect.left + 'px',
-      });
-
+    // All magic starts here
+    // if element has marginBottom option
+    if(element.sticky.marginBottom) {
       if (
-        (this.scrollTop + element.sticky.rect.height + element.sticky.marginTop)
-        > (element.sticky.container.rect.top + element.sticky.container.offsetHeight)
+        element.sticky.rect.top === 0
+        && element.sticky.container === this.body
       ) {
+        this.css(element, {
+          position: 'fixed',
+          top: element.sticky.rect.top + 'px',
+          left: element.sticky.rect.left + 'px',
+          width: element.sticky.rect.width + 'px',
+        });
+      } else if (
+          this.scrollTop + window.innerHeight >
+          (element.sticky.rect.top + element.sticky.rect.height + element.sticky.marginBottom)
+        ) {
+        // Stick element
+        this.css(element, {
+          position: 'fixed',
+          width: element.sticky.rect.width + 'px',
+          left: element.sticky.rect.left + 'px',
+        });
 
+        if ( // Unstick, but keep setting it's top position
+          (this.scrollTop + window.innerHeight - element.sticky.marginBottom) >
+          (element.sticky.container.rect.top + element.sticky.container.offsetHeight)
+        ) {
+
+          if (element.sticky.stickyClass) {
+            element.classList.remove(element.sticky.stickyClass);
+          }
+
+          this.css(element, {
+            top: (element.sticky.container.rect.top + element.sticky.container.offsetHeight) -
+            (this.scrollTop + element.sticky.rect.height) + 'px',
+          });
+        } else { // Add top position to tick
+          if (element.sticky.stickyClass) {
+            element.classList.add(element.sticky.stickyClass);
+          }
+
+          this.css(element, { top: window.innerHeight - element.sticky.marginBottom - element.sticky.rect.height + 'px' });
+        }
+      } else { // Unstick and clear styles, when element is below the stick position
         if (element.sticky.stickyClass) {
           element.classList.remove(element.sticky.stickyClass);
         }
 
+        this.css(element, { position: '', width: '', top: '', left: '' });
+
+        if (element.sticky.wrap) {
+          this.css(element.parentNode, { display: '', width: '', height: '' });
+        }
+      }
+    }
+    // If doesn't have marginBottom option
+    else {
+      if ( element.sticky.rect.top === 0 && element.sticky.container === this.body ) {
         this.css(element, {
-          top: (element.sticky.container.rect.top + element.sticky.container.offsetHeight) - (this.scrollTop + element.sticky.rect.height) + 'px' }
-        );
+          position: 'fixed',
+          top: element.sticky.rect.top + 'px',
+          left: element.sticky.rect.left + 'px',
+          width: element.sticky.rect.width + 'px',
+        });
+      } else if (this.scrollTop > (element.sticky.rect.top - element.sticky.marginTop)) {
+        this.css(element, {
+          position: 'fixed',
+          width: element.sticky.rect.width + 'px',
+          left: element.sticky.rect.left + 'px',
+        });
+
+        if (
+          (this.scrollTop + element.sticky.rect.height + element.sticky.marginTop)
+          > (element.sticky.container.rect.top + element.sticky.container.offsetHeight)
+        ) {
+
+          if (element.sticky.stickyClass) {
+            element.classList.remove(element.sticky.stickyClass);
+          }
+
+          this.css(element, {
+            top: (element.sticky.container.rect.top + element.sticky.container.offsetHeight) - (this.scrollTop + element.sticky.rect.height) + 'px' }
+          );
+        } else {
+          if (element.sticky.stickyClass) {
+            element.classList.add(element.sticky.stickyClass);
+          }
+
+          this.css(element, { top: element.sticky.marginTop + 'px' });
+        }
       } else {
         if (element.sticky.stickyClass) {
-          element.classList.add(element.sticky.stickyClass);
+          element.classList.remove(element.sticky.stickyClass);
         }
 
-        this.css(element, { top: element.sticky.marginTop + 'px' });
-      }
-    } else {
-      if (element.sticky.stickyClass) {
-        element.classList.remove(element.sticky.stickyClass);
-      }
+        this.css(element, { position: '', width: '', top: '', left: '' });
 
-      this.css(element, { position: '', width: '', top: '', left: '' });
-
-      if (element.sticky.wrap) {
-        this.css(element.parentNode, { display: '', width: '', height: '' });
+        if (element.sticky.wrap) {
+          this.css(element.parentNode, { display: '', width: '', height: '' });
+        }
       }
     }
    }
