@@ -413,6 +413,17 @@ var Sticky = function () {
     this.forEach(this.elements, function (element) {
       _this6.destroyResizeEvents(element);
       _this6.destroyScrollEvents(element);
+
+      if (element.dataset.stickyWrap) {
+        element.parentNode.parentNode.insertBefore(element, element.parentNode);
+        element.parentNode.removeChild(element.nextSibling);
+      }
+      if (element.sticky.stickyClass) {
+        element.classList.remove(element.sticky.stickyClass);
+      }
+      element.removeAttribute('style');
+      element.removeAttribute('data-sticky-rendered');
+
       delete element.sticky;
     });
   };
